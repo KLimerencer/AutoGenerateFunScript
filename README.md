@@ -1,3 +1,7 @@
+# !!! Simple Instruction !!!
+This is a tool for you to generate funscript for music or videos. Most generator only detects motions and cannot give you a good experience with the music. This is specific for fitting the move of music (right now)
+Just run the GUI_detector.py, a GUI will pop up and you can upload your video or music. Please comment your suggestions, I will improve them.
+
 # Music Beat Detection Tool
 
 一个用于检测音乐鼓点并生成funscript格式文件的工具，支持音频和视频文件处理。
