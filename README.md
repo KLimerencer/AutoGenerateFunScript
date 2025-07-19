@@ -10,7 +10,11 @@
 
 ## Quick Start
 
-### Start the GUI
+### One-click Start
+
+click `start_gui.bat` to launch the graphical interface directly
+
+If you prefer the command line, you can still run:
 ```bash
 python gui_detector.py
 ```
