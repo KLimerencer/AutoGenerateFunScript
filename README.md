@@ -16,49 +16,28 @@ A tool for detecting music beats and generating funscript files, supporting both
 - 🖥️ **GUI**: User-friendly graphical interface with progress bar
 - ⚙️ **Parameter Tuning**: Adjustable detection thresholds for best results
 
-## Installation
+## Quick Start
 
-### 1. Clone the repository
+### Start the GUI
 ```bash
-git clone <repository-url>
-cd AIfunScript
+python gui_detector.py
 ```
 
-### 2. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+- Select file type (audio or video)
+- Choose input file
+- Set output file path
+- Adjust detection parameters (optional)
+- Click "Start Detection" to process
+- Watch the progress bar and log for updates
 
-### 3. Verify installation
-```bash
-python -c "import librosa, moviepy; print('Dependencies installed successfully!')"
-```
+### Parameter Description
+- **Onset Threshold**: Sensitivity for detecting sound changes (0.1-1.0)
+- **Beat Threshold**: Sensitivity for beat detection (0.1-1.0)
+- **Detection Type**:
+  - Beat Points: Regular beat points (recommended)
+  - Onset Points: All sound change points (more sensitive)
 
-## Usage
-
-### GUI (Recommended)
-
-1. **Start the GUI**
-   ```bash
-   python gui_detector.py
-   ```
-
-2. **Steps**
-   - Select file type (audio or video)
-   - Choose input file
-   - Set output file path
-   - Adjust detection parameters (optional)
-   - Click "Start Detection" to process
-   - Watch the progress bar and log for updates
-
-3. **Parameter Description**
-   - **Onset Threshold**: Sensitivity for detecting sound changes (0.1-1.0)
-   - **Beat Threshold**: Sensitivity for beat detection (0.1-1.0)
-   - **Detection Type**:
-     - Beat Points: Regular beat points (recommended)
-     - Onset Points: All sound change points (more sensitive)
-
-### Command Line Usage
+### Command Line Usage (Advanced)
 
 #### Basic
 ```bash
