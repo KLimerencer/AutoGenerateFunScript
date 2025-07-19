@@ -91,6 +91,8 @@ class DrumBeatDetectorGUI:
         self.root = root
         self.root.title("Music Beat Detection Tool")
         self.root.geometry("700x600")
+        # 修复：初始化temp_audio_file属性，防止后续报错
+        self.temp_audio_file = None
         
         # Check if detector is available
         if AdvancedDrumBeatDetector is None:
@@ -102,11 +104,6 @@ class DrumBeatDetectorGUI:
         self.input_file = tk.StringVar()
         self.output_file = tk.StringVar()
         self.file_type = tk.StringVar(value="audio")  # "audio" or "video"
-        self.use_onset = tk.BooleanVar(value=False)
-        self.onset_threshold = tk.DoubleVar(value=0.5)
-        self.beat_threshold = tk.DoubleVar(value=0.5)
-        self.visualize = tk.BooleanVar(value=False)
-        self.temp_audio_file = None
         
         # State variable
         self.processing = False
@@ -191,40 +188,6 @@ class DrumBeatDetectorGUI:
         output_entry = ttk.Entry(file_frame, textvariable=self.output_file, width=50)
         output_entry.grid(row=2, column=1, padx=(10, 5), pady=5)
         ttk.Button(file_frame, text="Browse", command=self.browse_output).grid(row=2, column=2, pady=5)
-        
-        # Parameter settings area
-        param_frame = ttk.LabelFrame(main_frame, text="Detection Parameters", padding="10")
-        param_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
-        
-        # Detection type selection
-        ttk.Label(param_frame, text="Detection Type:").grid(row=0, column=0, sticky=tk.W, pady=5)
-        type_frame = ttk.Frame(param_frame)
-        type_frame.grid(row=0, column=1, sticky=tk.W, pady=5)
-        
-        ttk.Radiobutton(type_frame, text="Beat Points (Regular rhythm)", 
-                       variable=self.use_onset, value=False).pack(anchor=tk.W)
-        ttk.Radiobutton(type_frame, text="Onset Points (Sound changes, more sensitive)", 
-                       variable=self.use_onset, value=True).pack(anchor=tk.W)
-        
-        # Threshold settings
-        ttk.Label(param_frame, text="Onset Threshold:").grid(row=1, column=0, sticky=tk.W, pady=5)
-        onset_scale = ttk.Scale(param_frame, from_=0.1, to=1.0, variable=self.onset_threshold, 
-                               orient=tk.HORIZONTAL, length=200)
-        onset_scale.grid(row=1, column=1, sticky=tk.W, pady=5)
-        ttk.Label(param_frame, textvariable=tk.StringVar(value="0.5")).grid(row=1, column=2, pady=5)
-        
-        ttk.Label(param_frame, text="Beat Threshold:").grid(row=2, column=0, sticky=tk.W, pady=5)
-        beat_scale = ttk.Scale(param_frame, from_=0.1, to=1.0, variable=self.beat_threshold, 
-                              orient=tk.HORIZONTAL, length=200)
-        beat_scale.grid(row=2, column=1, sticky=tk.W, pady=5)
-        ttk.Label(param_frame, textvariable=tk.StringVar(value="0.5")).grid(row=2, column=2, pady=5)
-        
-        # Option settings
-        option_frame = ttk.Frame(param_frame)
-        option_frame.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=10)
-        
-        ttk.Checkbutton(option_frame, text="Generate Visualization", 
-                       variable=self.visualize).pack(anchor=tk.W)
         
         # Action buttons
         button_frame = ttk.Frame(main_frame)
@@ -389,30 +352,16 @@ class DrumBeatDetectorGUI:
             # Detect beats
             self.log_message("Detecting beats...")
             self.update_progress(50, "Detecting beats...")
-            detector.detect_beats_advanced(
-                onset_threshold=self.onset_threshold.get(),
-                beat_threshold=self.beat_threshold.get()
-            )
+            detector.detect_beats_librosa()
             self.log_message("Beat detection completed")
             self.update_progress(70, "Beat detection completed")
             
             # Export funscript
             self.log_message("Exporting funscript...")
             self.update_progress(80, "Exporting funscript...")
-            detector.export_funscript(
-                self.output_file.get(), 
-                use_onset=self.use_onset.get()
-            )
+            detector.export_funscript(self.output_file.get())
             self.log_message("Funscript export completed")
             self.update_progress(90, "Funscript export completed")
-            
-            # Generate visualization (if needed)
-            if self.visualize.get():
-                self.log_message("Generating visualization...")
-                self.update_progress(95, "Generating visualization...")
-                viz_file = os.path.splitext(self.output_file.get())[0] + "_visualization.png"
-                detector.visualize_detection(viz_file)
-                self.log_message(f"Visualization saved: {viz_file}")
             
             self.log_message("Processing completed!")
             self.update_progress(100, "Processing completed!")
