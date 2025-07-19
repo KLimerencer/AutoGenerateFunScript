@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-音乐鼓点检测GUI界面
+Music beat detection GUI interface
 
-提供图形界面来选择音频文件、设置参数并生成funscript
+Provides a graphical interface to select audio files, set parameters, and generate funscripts
 """
 
 import tkinter as tk
@@ -13,34 +13,34 @@ import tempfile
 import subprocess
 import sys
 
-# 全局变量
+# Global variable
 MOVIEPY_AVAILABLE = False
 
-# 依赖检查函数
+# Dependency check function
 def check_and_install_dependencies():
-    """检查并安装缺失的依赖"""
+    """Check and install missing dependencies"""
     global MOVIEPY_AVAILABLE
     missing_deps = []
     
-    # 检查librosa
+    # Check librosa
     try:
         import librosa
     except ImportError:
         missing_deps.append("librosa")
     
-    # 检查numpy
+    # Check numpy
     try:
         import numpy
     except ImportError:
         missing_deps.append("numpy")
     
-    # 检查matplotlib
+    # Check matplotlib
     try:
         import matplotlib
     except ImportError:
         missing_deps.append("matplotlib")
     
-    # 检查moviepy
+    # Check moviepy
     try:
         from moviepy import VideoFileClip
         MOVIEPY_AVAILABLE = True
@@ -48,7 +48,7 @@ def check_and_install_dependencies():
         missing_deps.append("moviepy")
         MOVIEPY_AVAILABLE = False
     
-    # 如果有缺失的依赖，尝试安装
+    # If there are missing dependencies, try to install them
     if missing_deps:
         print(f"Missing dependencies: {missing_deps}")
         print("Attempting to install missing dependencies...")
@@ -59,7 +59,7 @@ def check_and_install_dependencies():
                 subprocess.check_call([sys.executable, "-m", "pip", "install", dep])
                 print(f"{dep} installed successfully")
             
-            # 重新检查moviepy
+            # Recheck moviepy
             try:
                 from moviepy import VideoFileClip
                 MOVIEPY_AVAILABLE = True
@@ -74,12 +74,12 @@ def check_and_install_dependencies():
     
     return True
 
-# 在启动时检查依赖
+# Check dependencies at startup
 if not check_and_install_dependencies():
     print("Warning: Some dependencies could not be installed automatically")
     print("Please install manually: pip install -r requirements.txt")
 
-# 导入检测器（在依赖检查之后）
+# Import detector (after dependency check)
 try:
     from advanced_detector import AdvancedDrumBeatDetector
 except ImportError as e:
@@ -92,13 +92,13 @@ class DrumBeatDetectorGUI:
         self.root.title("Music Beat Detection Tool")
         self.root.geometry("700x600")
         
-        # 检查检测器是否可用
+        # Check if detector is available
         if AdvancedDrumBeatDetector is None:
             messagebox.showerror("Error", "Advanced detector not available. Please check dependencies.")
             root.destroy()
             return
         
-        # 变量
+        # Variables
         self.input_file = tk.StringVar()
         self.output_file = tk.StringVar()
         self.file_type = tk.StringVar(value="audio")  # "audio" or "video"
@@ -108,29 +108,29 @@ class DrumBeatDetectorGUI:
         self.visualize = tk.BooleanVar(value=False)
         self.temp_audio_file = None
         
-        # 状态变量
+        # State variable
         self.processing = False
         
-        # 检查moviepy状态
+        # Check moviepy status
         if not MOVIEPY_AVAILABLE:
             print("Warning: MoviePy not available. Video processing will not work.")
         
         self.create_widgets()
         
     def create_widgets(self):
-        # 主框架
+        # Main frame
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
-        # 标题
+        # Title
         title_label = ttk.Label(main_frame, text="🎵 Music Beat Detection Tool", font=("Arial", 16, "bold"))
         title_label.grid(row=0, column=0, columnspan=2, pady=(0, 10))
         
-        # 依赖状态
+        # Dependency status
         status_frame = ttk.Frame(main_frame)
         status_frame.grid(row=1, column=0, columnspan=2, pady=(0, 10))
         
-        # 显示依赖状态
+        # Show dependency status
         deps_status = []
         try:
             import librosa
@@ -164,11 +164,11 @@ class DrumBeatDetectorGUI:
                                     foreground="orange", font=("Arial", 9))
             warning_label.pack()
         
-        # 文件选择区域
+        # File selection area
         file_frame = ttk.LabelFrame(main_frame, text="File Selection", padding="10")
         file_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
         
-        # 文件类型选择
+        # File type selection
         ttk.Label(file_frame, text="File Type:").grid(row=0, column=0, sticky=tk.W, pady=5)
         type_frame = ttk.Frame(file_frame)
         type_frame.grid(row=0, column=1, sticky=tk.W, pady=5)
@@ -180,23 +180,23 @@ class DrumBeatDetectorGUI:
                        variable=self.file_type, value="video", 
                        command=self.on_file_type_change).pack(side=tk.LEFT)
         
-        # 输入文件选择
+        # Input file selection
         ttk.Label(file_frame, text="Input File:").grid(row=1, column=0, sticky=tk.W, pady=5)
         input_entry = ttk.Entry(file_frame, textvariable=self.input_file, width=50)
         input_entry.grid(row=1, column=1, padx=(10, 5), pady=5)
         ttk.Button(file_frame, text="Browse", command=self.browse_input).grid(row=1, column=2, pady=5)
         
-        # 输出文件选择
+        # Output file selection
         ttk.Label(file_frame, text="Output File:").grid(row=2, column=0, sticky=tk.W, pady=5)
         output_entry = ttk.Entry(file_frame, textvariable=self.output_file, width=50)
         output_entry.grid(row=2, column=1, padx=(10, 5), pady=5)
         ttk.Button(file_frame, text="Browse", command=self.browse_output).grid(row=2, column=2, pady=5)
         
-        # 参数设置区域
+        # Parameter settings area
         param_frame = ttk.LabelFrame(main_frame, text="Detection Parameters", padding="10")
         param_frame.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 10))
         
-        # 检测类型选择
+        # Detection type selection
         ttk.Label(param_frame, text="Detection Type:").grid(row=0, column=0, sticky=tk.W, pady=5)
         type_frame = ttk.Frame(param_frame)
         type_frame.grid(row=0, column=1, sticky=tk.W, pady=5)
@@ -206,7 +206,7 @@ class DrumBeatDetectorGUI:
         ttk.Radiobutton(type_frame, text="Onset Points (Sound changes, more sensitive)", 
                        variable=self.use_onset, value=True).pack(anchor=tk.W)
         
-        # 阈值设置
+        # Threshold settings
         ttk.Label(param_frame, text="Onset Threshold:").grid(row=1, column=0, sticky=tk.W, pady=5)
         onset_scale = ttk.Scale(param_frame, from_=0.1, to=1.0, variable=self.onset_threshold, 
                                orient=tk.HORIZONTAL, length=200)
@@ -219,14 +219,14 @@ class DrumBeatDetectorGUI:
         beat_scale.grid(row=2, column=1, sticky=tk.W, pady=5)
         ttk.Label(param_frame, textvariable=tk.StringVar(value="0.5")).grid(row=2, column=2, pady=5)
         
-        # 选项设置
+        # Option settings
         option_frame = ttk.Frame(param_frame)
         option_frame.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=10)
         
         ttk.Checkbutton(option_frame, text="Generate Visualization", 
                        variable=self.visualize).pack(anchor=tk.W)
         
-        # 操作按钮
+        # Action buttons
         button_frame = ttk.Frame(main_frame)
         button_frame.grid(row=4, column=0, columnspan=2, pady=20)
         
@@ -236,23 +236,23 @@ class DrumBeatDetectorGUI:
         
         ttk.Button(button_frame, text="Exit", command=self.root.quit).pack(side=tk.LEFT)
         
-        # 进度条框架
+        # Progress bar frame
         progress_frame = ttk.LabelFrame(main_frame, text="Progress", padding="10")
         progress_frame.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=10)
         
-        # 进度条
+        # Progress bar
         self.progress = ttk.Progressbar(progress_frame, mode='determinate', length=400, maximum=100)
         self.progress.grid(row=0, column=0, sticky=(tk.W, tk.E), padx=(0, 10))
         
-        # 进度百分比标签
+        # Progress percentage label
         self.progress_label = ttk.Label(progress_frame, text="0%", width=5)
         self.progress_label.grid(row=0, column=1)
         
-        # 状态标签
+        # Status label
         self.status_label = ttk.Label(main_frame, text="Ready", font=("Arial", 10))
         self.status_label.grid(row=6, column=0, columnspan=2, pady=5)
         
-        # 日志区域
+        # Log area
         log_frame = ttk.LabelFrame(main_frame, text="Processing Log", padding="5")
         log_frame.grid(row=7, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(10, 0))
         
@@ -263,66 +263,66 @@ class DrumBeatDetectorGUI:
         self.log_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
         
-        # 配置网格权重
+        # Configure grid weights
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(7, weight=1)
         log_frame.columnconfigure(0, weight=1)
         log_frame.rowconfigure(0, weight=1)
         
     def on_file_type_change(self):
-        """文件类型改变时的处理"""
-        # 清空当前选择的文件
+        """Handle file type change"""
+        # Clear current file selection
         self.input_file.set("")
         self.output_file.set("")
         
     def browse_input(self):
-        """浏览输入文件"""
+        """Browse input file"""
         if self.file_type.get() == "audio":
             filename = filedialog.askopenfilename(
-                title="选择音频文件",
+                title="Select Audio File",
                 filetypes=[
-                    ("音频文件", "*.mp3 *.wav *.flac *.m4a *.ogg"),
-                    ("MP3文件", "*.mp3"),
-                    ("WAV文件", "*.wav"),
-                    ("所有文件", "*.*")
+                    ("Audio Files", "*.mp3 *.wav *.flac *.m4a *.ogg"),
+                    ("MP3 Files", "*.mp3"),
+                    ("WAV Files", "*.wav"),
+                    ("All Files", "*.*")
                 ]
             )
         else:  # video
             filename = filedialog.askopenfilename(
-                title="选择视频文件",
+                title="Select Video File",
                 filetypes=[
-                    ("视频文件", "*.mp4 *.avi *.mkv *.mov *.wmv *.flv"),
-                    ("MP4文件", "*.mp4"),
-                    ("AVI文件", "*.avi"),
-                    ("所有文件", "*.*")
+                    ("Video Files", "*.mp4 *.avi *.mkv *.mov *.wmv *.flv"),
+                    ("MP4 Files", "*.mp4"),
+                    ("AVI Files", "*.avi"),
+                    ("All Files", "*.*")
                 ]
             )
             
         if filename:
             self.input_file.set(filename)
-            # 自动设置输出文件名
+            # Auto set output file name
             base_name = os.path.splitext(os.path.basename(filename))[0]
             output_name = f"{base_name}.funscript"
             self.output_file.set(output_name)
             
     def browse_output(self):
-        """浏览输出文件"""
+        """Browse output file"""
         filename = filedialog.asksaveasfilename(
-            title="保存funscript文件",
+            title="Save funscript file",
             defaultextension=".funscript",
-            filetypes=[("Funscript文件", "*.funscript"), ("所有文件", "*.*")]
+            filetypes=[("Funscript Files", "*.funscript"), ("All Files", "*.*")]
         )
         if filename:
             self.output_file.set(filename)
             
     def log_message(self, message):
-        """添加日志消息"""
+        """Add log message"""
         self.log_text.insert(tk.END, f"{message}\n")
         self.log_text.see(tk.END)
         self.root.update_idletasks()
         
     def update_progress(self, value, status_text=""):
-        """更新进度条"""
+        """Update progress bar"""
         self.progress['value'] = value
         self.progress_label.config(text=f"{int(value)}%")
         if status_text:
@@ -330,11 +330,11 @@ class DrumBeatDetectorGUI:
         self.root.update_idletasks()
         
     def start_processing(self):
-        """开始处理"""
+        """Start processing"""
         if self.processing:
             return
             
-        # 验证输入
+        # Validate input
         if not self.input_file.get():
             messagebox.showerror("Error", "Please select input file")
             return
@@ -347,7 +347,7 @@ class DrumBeatDetectorGUI:
             messagebox.showerror("Error", "Input file does not exist")
             return
             
-        # 开始处理
+        # Start processing
         self.processing = True
         self.process_button.config(state='disabled')
         self.progress['value'] = 0
@@ -355,17 +355,17 @@ class DrumBeatDetectorGUI:
         self.status_label.config(text="Processing...")
         self.log_text.delete(1.0, tk.END)
         
-        # 在新线程中处理
+        # Process in a new thread
         thread = threading.Thread(target=self.process_audio)
         thread.daemon = True
         thread.start()
         
     def process_audio(self):
-        """处理音频文件"""
+        """Process audio file"""
         try:
             input_file = self.input_file.get()
             
-            # 如果是视频文件，先提取音频
+            # If video file, extract audio first
             if self.file_type.get() == "video":
                 self.log_message("Video file detected, extracting audio...")
                 self.update_progress(5, "Starting video processing...")
@@ -378,15 +378,15 @@ class DrumBeatDetectorGUI:
                 self.log_message("Loading audio file...")
                 self.update_progress(10, "Loading audio file...")
             
-            # 创建检测器
+            # Create detector
             detector = AdvancedDrumBeatDetector(audio_file)
             
-            # 加载音频
+            # Load audio
             detector.load_audio()
             self.log_message("Audio loading completed")
             self.update_progress(40, "Audio loading completed")
             
-            # 检测鼓点
+            # Detect beats
             self.log_message("Detecting beats...")
             self.update_progress(50, "Detecting beats...")
             detector.detect_beats_advanced(
@@ -396,7 +396,7 @@ class DrumBeatDetectorGUI:
             self.log_message("Beat detection completed")
             self.update_progress(70, "Beat detection completed")
             
-            # 导出funscript
+            # Export funscript
             self.log_message("Exporting funscript...")
             self.update_progress(80, "Exporting funscript...")
             detector.export_funscript(
@@ -406,7 +406,7 @@ class DrumBeatDetectorGUI:
             self.log_message("Funscript export completed")
             self.update_progress(90, "Funscript export completed")
             
-            # 生成可视化（如果需要）
+            # Generate visualization (if needed)
             if self.visualize.get():
                 self.log_message("Generating visualization...")
                 self.update_progress(95, "Generating visualization...")
@@ -424,32 +424,33 @@ class DrumBeatDetectorGUI:
             messagebox.showerror("Error", error_msg)
             
         finally:
-            # 清理临时文件
+            # Clean up temp files
             if self.temp_audio_file and os.path.exists(self.temp_audio_file):
                 try:
                     os.remove(self.temp_audio_file)
                     self.log_message("Temporary file cleaned up")
                 except:
                     pass
-            # 恢复UI状态
+            # Restore UI state
             self.root.after(0, self.finish_processing)
             
     def extract_audio_from_video(self, video_path):
-        """从视频中提取音频"""
+        """Extract audio from video"""
         try:
-            # 检查moviepy是否可用
+            # Check if moviepy is available
             if not MOVIEPY_AVAILABLE:
                 raise Exception("MoviePy library not found. Please install it with: pip install moviepy")
             
             self.log_message("Loading video file...")
             self.update_progress(15, "Loading video file...")
             
-            # 创建临时音频文件
+            # Create temp audio file
             temp_audio = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
             temp_audio.close()
             self.temp_audio_file = temp_audio.name
             
-            # 提取音频
+            # Extract audio
+            from moviepy import VideoFileClip
             video = VideoFileClip(video_path)
             audio = video.audio
             
@@ -460,17 +461,17 @@ class DrumBeatDetectorGUI:
             self.log_message("Extracting audio from video...")
             self.update_progress(20, "Extracting audio from video...")
                 
-            # 保存音频到临时文件
+            # Save audio to temp file
             audio.write_audiofile(self.temp_audio_file)
             
-            # 关闭视频文件
+            # Close video file
             video.close()
             
             self.log_message("Audio extraction completed successfully")
             return self.temp_audio_file
             
         except Exception as e:
-            # 清理临时文件
+            # Clean up temp files
             if hasattr(self, 'temp_audio_file') and self.temp_audio_file and os.path.exists(self.temp_audio_file):
                 try:
                     os.remove(self.temp_audio_file)
@@ -479,7 +480,7 @@ class DrumBeatDetectorGUI:
             raise Exception(f"Audio extraction failed: {str(e)}")
             
     def finish_processing(self):
-        """完成处理，恢复UI状态"""
+        """Finish processing, restore UI state"""
         self.processing = False
         self.process_button.config(state='normal')
         self.progress['value'] = 0
@@ -487,7 +488,7 @@ class DrumBeatDetectorGUI:
         self.status_label.config(text="Ready")
 
 def main():
-    """主函数"""
+    """Main function"""
     root = tk.Tk()
     app = DrumBeatDetectorGUI(root)
     root.mainloop()
