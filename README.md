@@ -8,6 +8,14 @@
 - 🖥️ **GUI**: User-friendly graphical interface with progress bar
 - ⚙️ **Parameter Tuning**: Adjustable detection thresholds for best results
 
+---
+
+**GUI Preview**
+
+![GUI Preview](./GUIpreview.png)
+
+---
+
 ## Quick Start
 
 ### One-click Start
